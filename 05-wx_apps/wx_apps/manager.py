@@ -5,7 +5,7 @@
 import os
 import sys
 
-BASE_DIR = os.path.basename(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 sys.path.append(os.path.join(BASE_DIR, "apps"))
 
@@ -13,6 +13,7 @@ sys.path.append(os.path.join(BASE_DIR, "apps"))
 def get_manager():
     """获取app代理"""
     from application import apps
+    apps.base_dir = BASE_DIR
     manage = apps.manager()
 
     @manage.option("-m", "--model", help="运行的模式: 1. 生产模式 2. 测试模式", dest="model", default=1)

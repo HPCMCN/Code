@@ -17,4 +17,3 @@ class Config(object):
         cfg = LoadSetting(Config.BASE_DIR, model).cfg
         for k, v in cfg.items():
             setattr(self, k.upper(), v)
-            print(k, v)
