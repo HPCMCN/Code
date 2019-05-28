@@ -41,6 +41,7 @@ class Application(object):
         from apps.food.view import bp_food
         from apps.finance.view import bp_finance
         from apps.stat.view import bp_stat
+        from apps.error.view import bp_error
         self.app.register_blueprint(bp_user)
         self.app.register_blueprint(bp_index)
         self.app.register_blueprint(bp_account)
@@ -48,6 +49,7 @@ class Application(object):
         self.app.register_blueprint(bp_food)
         self.app.register_blueprint(bp_finance)
         self.app.register_blueprint(bp_stat)
+        self.app.register_blueprint(bp_error)
 
     def run(self, model, host=None, port=None):
         """系统启动器"""
