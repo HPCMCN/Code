@@ -3,59 +3,22 @@
 # Power by HPCM 2019-05-27 10:14:49
 # Filename load_setting.py
 import os
-import logging.config
+import json
 
 import yaml
 
-import logging.config
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '[%(levelname).4s %(asctime)s] %(module)s %(lineno)d %(message)s'
-        },
-        'simple': {
-            'format': '[%(levelname).4s %(asctime)s] %(module)s %(lineno)d %(message)s'
-        },
-        'handlers': {
-            'console': {
-                'level': 'DEBUG',
-                "stream": "ext://sys.stdout",
-                'class': 'logging.StreamHandler',
-                'formatter': 'simple'
-            },
-            'file': {
-                'level': 'INFO',
-                'class': 'logging.handlers.RotatingFileHandler',
-                'filename': "logs/running.log",  # 日志文件的位置
-                'maxBytes': 300 * 1024 * 1024,
-                'backupCount': 10,
-                'formatter': 'verbose'
-            },
-        },
-        'loggers': {
-            'wx': {
-                "level": "INFO",
-                'handlers': ['console', 'file'],
-                'propagate': True,
-            },
-        }
-    }
-}
-
-logging.config.dictConfig(LOGGING)
-
-
+# noinspection PyTypeChecker,PyUnresolvedReferences
 class LoadSetting(object):
     def __init__(self, base_dir, model):
         self.base_dir = base_dir
         self.paths = {
-            0: "config/location.yaml",
-            1: "config/product.yaml"
+            0: os.path.join("config", "location.yaml"),
+            1: os.path.join("config", "product.yaml")
         }
+        self.logging_path = os.path.join("config", "logging.json")
         self.model = int(model)
+        self.conf = None
 
     def get_path(self):
         """获取路径"""
@@ -65,14 +28,38 @@ class LoadSetting(object):
             raise FileNotFoundError("配置文件不存在!, 请输入: {}".format(" ".join([str(i) for i in self.paths])))
         return os.path.join(self.base_dir, self.paths[self.model])
 
+    def set_debug(self):
+        """设置debug"""
+        self.conf["debug"] = True if self.model == 0 else False
+
+    def set_log(self):
+        """设置日志"""
+        import json
+        with open(os.path.join(self.base_dir, self.logging_path), "r") as f:
+            log = json.load(f)
+        temp = log["handlers"]["file"]["filename"]
+        out_path = self.base_dir
+        r_t = temp.split("/")
+        if len(r_t) == 1:
+            r_t = temp.split("\\")
+        for path in r_t:
+            out_path = os.path.join(out_path, path)
+        log["handlers"]["file"]["filename"] = out_path
+        self.conf["LOGGER"] = log
+
+    def set_other(self):
+        """设置其他的项目"""
+        self.set_debug()
+        self.set_log()
+
     @property
     def cfg(self):
         """启动器"""
         conf_path = self.get_path()
-        with open(conf_path, "r") as f:
+        with open(conf_path, "r", encoding="utf-8") as f:
             try:
-                conf = yaml.load(f, Loader=yaml.FullLoader)
+                self.conf = yaml.load(f, Loader=yaml.FullLoader)
             except AttributeError:
-                conf = yaml.load(f)
-            conf["debug"] = True if self.model == 0 else False
-        return conf
+                self.conf = yaml.load(f)
+        self.set_other()
+        return self.conf

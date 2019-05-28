@@ -29,9 +29,9 @@ def get_manager():
 
 
 if __name__ == "__main__":
+    # noinspection PyBroadException
     try:
         sys.exit(get_manager().run())
-    except Exception as e:
-        import logging
-        logging.getLogger("wx")
-        logging.info(e)
+    except Exception:
+        import traceback
+        traceback.print_exc()
