@@ -3,13 +3,13 @@
 # Power by HPCM 2019-05-27 10:14:49
 # Filename load_setting.py
 import os
-import json
 
 import yaml
 
 
 # noinspection PyTypeChecker,PyUnresolvedReferences
 class LoadSetting(object):
+    """获取配置"""
     def __init__(self, base_dir, model):
         self.base_dir = base_dir
         self.paths = {

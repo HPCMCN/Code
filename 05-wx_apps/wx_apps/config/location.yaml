@@ -1,4 +1,4 @@
 secret_key: "ah0o#)*(Y(NOIDHUIOhuiiua89"
-sqlalchemy_database_uri: "mysql://root:dong10@localhost:3306/db_wx"
+sqlalchemy_database_uri: "mysql://root:dong10@localhost:3306/db_wx?charset=utf8"
 sqlalchemy_track_modifications: false # 关闭数据库操作提示
 sqlalchemy_echo: false

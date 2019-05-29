@@ -6,9 +6,10 @@ import os
 import logging.config
 
 from flask import Flask
-from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from flask_sqlalchemy import SQLAlchemy
+
+from common.cmd_manager import Manager
 
 db = SQLAlchemy()
 
@@ -16,14 +17,15 @@ db = SQLAlchemy()
 class Application(object):
     def __init__(self):
         self.app = Flask(__name__)
-        self.model = None
         self.base_dir = None
+        self.manager = None
+        self.set_manager()
 
-    def config(self):
+    def config(self, model):
         """配置flask"""
         from config import constants
         from common import url_manager
-        self.app.config.from_object(constants.Config(self.model))
+        self.app.config.from_object(constants.Config(model))
         logging.config.dictConfig(self.app.config.get("LOGGER"))
         db.init_app(self.app)
         self.app.add_template_global(url_manager.build_url, "buildUrl")
@@ -51,19 +53,22 @@ class Application(object):
         self.app.register_blueprint(bp_stat)
         self.app.register_blueprint(bp_error)
 
-    def run(self, model, host=None, port=None):
+    def start(self):
         """系统启动器"""
-        self.model = model
-        self.config()
+        self.manager_db()
         self.register()
-        self.app.run(host, port)
 
-    def manager(self):
-        """app托管"""
-        Migrate(self.app, db)
+    def set_manager(self):
+        """初始化托管程序"""
         manager = Manager(self.app)
-        manager.add_command("db", MigrateCommand)
-        return manager
+
+        manager.add_option("-m", "--model", help="运行的模式: 1. 生产模式 2. 测试模式", dest="model", default=1)
+        self.manager = manager
+
+    def manager_db(self):
+        """数据库托管"""
+        Migrate(self.app, db)
+        self.manager.add_command("db", MigrateCommand)
 
 
 apps = Application()

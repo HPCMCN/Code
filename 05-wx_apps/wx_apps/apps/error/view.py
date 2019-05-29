@@ -23,8 +23,6 @@ def get_400(request):
     print(request)
     return request
 
-True
-
 
 @bp_error.after_request
 def get_error(e):
