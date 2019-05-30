@@ -10,27 +10,18 @@ import yaml
 # noinspection PyTypeChecker,PyUnresolvedReferences
 class LoadSetting(object):
     """获取配置"""
-    def __init__(self, base_dir, model):
-        self.base_dir = base_dir
-        self.paths = {
-            0: os.path.join("config", "location.yaml"),
-            1: os.path.join("config", "product.yaml")
-        }
-        self.logging_path = os.path.join("config", "logging.json")
-        self.model = int(model)
-        self.conf = None
 
-    def get_path(self):
-        """获取路径"""
-        if not isinstance(self.model, int):
-            self.model = int(self.model)
-        if self.model not in self.paths.keys():
-            raise FileNotFoundError("配置文件不存在!, 请输入: {}".format(" ".join([str(i) for i in self.paths])))
-        return os.path.join(self.base_dir, self.paths[self.model])
+    def __init__(self, base_dir, debug):
+        self.base_dir = base_dir
+        self.debug = debug
+        self.conf_path = os.path.join("config", "location.yaml") if self.debug is True else os.path.join(
+            "config", "product.yaml")
+        self.logging_path = os.path.join("config", "logging.json")
+        self.conf = None
 
     def set_debug(self):
         """设置debug"""
-        self.conf["debug"] = True if self.model == 0 else False
+        self.conf["debug"] = self.debug
 
     def set_log(self):
         """设置日志"""
@@ -55,8 +46,7 @@ class LoadSetting(object):
     @property
     def cfg(self):
         """启动器"""
-        conf_path = self.get_path()
-        with open(conf_path, "r") as f:
+        with open(self.conf_path, "r") as f:
             try:
                 self.conf = yaml.load(f, Loader=yaml.FullLoader)
             except AttributeError:

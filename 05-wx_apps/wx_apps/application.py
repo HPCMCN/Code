@@ -6,28 +6,27 @@ import os
 import logging.config
 
 from flask import Flask
+from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 from flask_sqlalchemy import SQLAlchemy
-
-from common.cmd_manager import Manager
 
 db = SQLAlchemy()
 
 
+# noinspection PyProtectedMember
 class Application(object):
     def __init__(self):
         self.app = Flask(__name__)
         self.base_dir = None
-        self.manager = None
-        self.set_manager()
 
-    def config(self, model):
+    def config(self):
         """配置flask"""
         from config import constants
         from common import url_manager
-        self.app.config.from_object(constants.Config(model))
+        self.app.config.from_object(constants.Config())
         logging.config.dictConfig(self.app.config.get("LOGGER"))
         db.init_app(self.app)
+        from common.model import User
         self.app.add_template_global(url_manager.build_url, "buildUrl")
         self.app.add_template_global(url_manager.build_static_url, "buildStaticUrl")
         self.app.template_folder = os.path.join(self.base_dir, "templates")
@@ -55,20 +54,25 @@ class Application(object):
 
     def start(self):
         """系统启动器"""
-        self.manager_db()
+        self.config()
         self.register()
+        manager = self.manager()
+        manager.run()
 
-    def set_manager(self):
+    def set_base_dir(self, base_dir):
+        """设置BASE_DIR"""
+        self.base_dir = base_dir
+
+    def manager(self):
         """初始化托管程序"""
         manager = Manager(self.app)
+        self.manager_db(manager)
+        return manager
 
-        manager.add_option("-m", "--model", help="运行的模式: 1. 生产模式 2. 测试模式", dest="model", default=1)
-        self.manager = manager
-
-    def manager_db(self):
+    def manager_db(self, manager):
         """数据库托管"""
         Migrate(self.app, db)
-        self.manager.add_command("db", MigrateCommand)
+        manager.add_command("db", MigrateCommand)
 
 
 apps = Application()

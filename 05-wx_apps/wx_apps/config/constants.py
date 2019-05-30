@@ -5,6 +5,8 @@
 import os
 import sys
 
+DEBUG = True
+
 
 class Config(object):
     """配置文件导入"""
@@ -12,8 +14,8 @@ class Config(object):
     sys.path.append(BASE_DIR)
     sys.path.append(os.path.join(BASE_DIR, "apps"))
 
-    def __init__(self, model):
+    def __init__(self):
         from config.load_setting import LoadSetting
-        cfg = LoadSetting(Config.BASE_DIR, model).cfg
+        cfg = LoadSetting(Config.BASE_DIR, DEBUG).cfg
         for k, v in cfg.items():
             setattr(self, k.upper(), v)

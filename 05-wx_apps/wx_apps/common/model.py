@@ -7,6 +7,7 @@ from application import db
 
 
 class User(db.Model):
+    """用户表"""
     __tablename__ = "user"
     id = db.Column(db.BigInteger, primary_key=True, autoincrement=True, comment="id")
     nickname = db.Column(db.String(64), nullable=False, comment="用户名")
@@ -20,3 +21,11 @@ class User(db.Model):
     status = db.Column(db.Boolean, nullable=False, comment="账户状态: 无效(0)/有效(1)")
     create_time = db.Column(db.DateTime, nullable=False, default=datetime.now, comment="账号创建时间")
     update_time = db.Column(db.DateTime, nullable=False, default=datetime.now, onupdate=datetime.now, comment="最后一次登录时间")
+
+    def to_dict(self):
+        """序列化"""
+        return {
+            "nickname": self.nickname,
+            "mobile": self.mobile,
+            "email": self.email
+        }
