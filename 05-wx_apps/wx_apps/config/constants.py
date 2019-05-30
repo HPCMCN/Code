@@ -6,6 +6,15 @@ import os
 import sys
 
 DEBUG = True
+MSG = None
+
+
+def msg(code):
+    """获取状态字典"""
+    return {
+        "code": code,
+        "msg": MSG.get(code)
+    }
 
 
 class Config(object):
@@ -16,6 +25,8 @@ class Config(object):
 
     def __init__(self):
         from config.load_setting import LoadSetting
-        cfg = LoadSetting(Config.BASE_DIR, DEBUG).cfg
-        for k, v in cfg.items():
+        global MSG
+        ls = LoadSetting(Config.BASE_DIR, DEBUG)
+        for k, v in ls.cfg.items():
             setattr(self, k.upper(), v)
+        MSG = ls.set_massage()

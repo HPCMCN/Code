@@ -7,7 +7,7 @@ function start(){
     then
         echo "服务正在运行!"
     else
-        nohup python -u $base_dir/$script run -m0 -h0.0.0.0:5000 >> $base_dir/logs/nohup.log 2>&1 & echo $! > .pid
+        nohup python -u $base_dir/$script runserver -h 0.0.0.0 -p 5000  >> $base_dir/logs/nohup.log 2>&1 & echo $! > .pid
         if [ $? == 0 ]
         then
             if  ps -ef | grep $script | grep -v grep >/dev/null
@@ -37,24 +37,32 @@ function stop(){
     fi
 }
 
+function log(){
+    log_path=$base_dir/logs/nohup.log
+    cat $log_path &&
+    tail -f $log_path
+}
+
+
 function main(){
-    read -p $'1. 启动\n2. 停止\n0. 退出\n请输入:' e
-    if [ $e == 1 ]
-    then
-        start
-    else
-        if [ $e == 2 ]
-        then
+    read -p $'1. 启动\n2. 停止\n3. 当前输出\n0. 退出\n请输入:' e
+    case $e in
+        1)
+            start
+            ;;
+        2)
             stop
-        else
-            if [ $e == 0 ]
-            then
-                return 22
-            else
-                echo "选择错误!"
-            fi
-        fi
-    fi
+            ;;
+        3)
+            log
+            ;;
+        0)
+            return 22
+            ;;
+        *)
+            echo "选择错误!"
+            ;;
+    esac
 }
 
 while true

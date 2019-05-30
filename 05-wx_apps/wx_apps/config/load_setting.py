@@ -17,6 +17,7 @@ class LoadSetting(object):
         self.conf_path = os.path.join("config", "location.yaml") if self.debug is True else os.path.join(
             "config", "product.yaml")
         self.logging_path = os.path.join("config", "logging.json")
+        self.massage_path = os.path.join("config", "massage.yaml")
         self.conf = None
 
     def set_debug(self):
@@ -53,3 +54,12 @@ class LoadSetting(object):
                 self.conf = yaml.load(f)
         self.set_other()
         return self.conf
+
+    def set_massage(self):
+        """启动器"""
+        with open(self.massage_path, "r") as f:
+            try:
+                msg = yaml.load(f, Loader=yaml.FullLoader)
+            except AttributeError:
+                msg = yaml.load(f)
+        return msg

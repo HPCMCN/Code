@@ -13,7 +13,7 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-# noinspection PyProtectedMember
+# noinspection PyProtectedMember,PyUnboundLocalVariable
 class Application(object):
     def __init__(self):
         self.app = Flask(__name__)
@@ -26,7 +26,6 @@ class Application(object):
         self.app.config.from_object(constants.Config())
         logging.config.dictConfig(self.app.config.get("LOGGER"))
         db.init_app(self.app)
-        from common.model import User
         self.app.add_template_global(url_manager.build_url, "buildUrl")
         self.app.add_template_global(url_manager.build_static_url, "buildStaticUrl")
         self.app.template_folder = os.path.join(self.base_dir, "templates")
@@ -67,12 +66,36 @@ class Application(object):
         """初始化托管程序"""
         manager = Manager(self.app)
         self.manager_db(manager)
+        self.manager_account(manager)
         return manager
 
     def manager_db(self, manager):
         """数据库托管"""
         Migrate(self.app, db)
         manager.add_command("db", MigrateCommand)
+
+    @staticmethod
+    def manager_account(manager):
+        """账号密码插入"""
+
+        @manager.command
+        def create_user():
+            """创建用户账号"""
+            from common.model import User
+            user = User()
+            for _ in range(3):
+                username = input("请输入登录账号:\n")
+                if not User.query.filter_by(username=username).all():
+                    break
+            else:
+                print("重试次数超限!")
+                exit(0)
+            user.username = username
+            user.password = input("请输入登录密码:\n")
+            user.nickname = user.username
+            db.session.add(user)
+            db.session.commit()
+            print("用户: {} 创建成功!".format(user.nickname))
 
 
 apps = Application()

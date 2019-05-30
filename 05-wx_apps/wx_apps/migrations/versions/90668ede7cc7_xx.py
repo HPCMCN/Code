@@ -1,8 +1,8 @@
-"""user创建
+"""xx
 
-Revision ID: 7952c444d82e
+Revision ID: 90668ede7cc7
 Revises: 
-Create Date: 2019-05-30 10:41:04.124949
+Create Date: 2019-05-30 16:07:12.790297
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '7952c444d82e'
+revision = '90668ede7cc7'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,14 +25,14 @@ def upgrade():
     sa.Column('email', sa.String(length=64), nullable=False, comment='邮箱'),
     sa.Column('sex', sa.Boolean(), nullable=False, comment='性别: 女(0)/男(1)'),
     sa.Column('avatar', sa.String(length=64), nullable=False, comment='头像'),
-    sa.Column('account', sa.String(length=32), nullable=False, comment='登录账号'),
+    sa.Column('username', sa.String(length=32), nullable=False, comment='登录账号'),
     sa.Column('password', sa.String(length=32), nullable=False, comment='登录密码'),
     sa.Column('salt', sa.String(length=32), nullable=False, comment='盐'),
     sa.Column('status', sa.Boolean(), nullable=False, comment='账户状态: 无效(0)/有效(1)'),
     sa.Column('create_time', sa.DateTime(), nullable=False, comment='账号创建时间'),
     sa.Column('update_time', sa.DateTime(), nullable=False, comment='最后一次登录时间'),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('account')
+    sa.UniqueConstraint('username')
     )
     # ### end Alembic commands ###
 
